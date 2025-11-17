@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PharmaCare - Prescription Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' x='6' font-size='48'%3E%F0%9F%92%8A%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">💊</div>
+        <div class="brand-text">
+          <h1>PharmaCare</h1>
+          <p class="tagline">Your prescriptions, organized.</p>
+        </div>
+      </div>
+      <nav class="primary-nav" aria-label="Primary">
+        <button class="nav-btn is-active" data-section="dashboard" aria-controls="section-dashboard" aria-current="page">🏠 Dashboard</button>
+        <button class="nav-btn" data-section="upload" aria-controls="section-upload">⬆️ Upload</button>
+        <button class="nav-btn" data-section="pharmacies" aria-controls="section-pharmacies">🗺️ Pharmacies</button>
+        <button class="nav-btn" data-section="wellness" aria-controls="section-wellness">🌈 Wellness</button>
+        <button class="nav-btn" data-section="analytics" aria-controls="section-analytics">📊 Analytics</button>
+        <button class="nav-btn" data-section="chat" aria-controls="section-chat">💬 Chat</button>
+        <button class="nav-btn" data-section="profile" aria-controls="section-profile">👤 Profile</button>
+      </nav>
+    </header>
+
+    <main class="app-main">
+      <!-- DASHBOARD -->
+      <section id="section-dashboard" class="section is-active" aria-labelledby="dashboard-heading">
+        <div class="section-header">
+          <h2 id="dashboard-heading">User Dashboard</h2>
+          <p class="section-subtitle">Active prescriptions and upcoming refills</p>
+        </div>
+        <div id="alerts" class="alerts" role="status" aria-live="polite"></div>
+        <div id="prescription-list" class="card-grid" aria-live="polite"></div>
+      </section>
+
+      <!-- UPLOAD -->
+      <section id="section-upload" class="section" aria-labelledby="upload-heading" hidden>
+        <div class="section-header">
+          <h2 id="upload-heading">Upload Prescription</h2>
+          <p class="section-subtitle">Add a new prescription to your dashboard</p>
+        </div>
+        <form id="upload-form" class="form">
+          <div class="form-row">
+            <label for="medicationName">Medication Name</label>
+            <input id="medicationName" name="medicationName" type="text" required placeholder="e.g., Atorvastatin" />
+          </div>
+          <div class="form-row">
+            <label for="dosage">Dosage</label>
+            <input id="dosage" name="dosage" type="text" required placeholder="e.g., 20 mg" />
+          </div>
+          <div class="form-row">
+            <label for="refillDate">Next Refill Date</label>
+            <input id="refillDate" name="refillDate" type="date" required />
+          </div>
+          <div class="form-row">
+            <label for="rxFile">Prescription File (optional)</label>
+            <input id="rxFile" name="rxFile" type="file" accept="image/*,.pdf" />
+            <small class="help-text">File is not uploaded to a server; this is a simulation.</small>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Add Prescription</button>
+            <button type="reset" class="btn">Reset</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- PHARMACIES / MAP -->
+      <section id="section-pharmacies" class="section" aria-labelledby="pharmacies-heading" hidden>
+        <div class="section-header">
+          <h2 id="pharmacies-heading">Nearby Pharmacies</h2>
+          <p class="section-subtitle">Find a pharmacy near you</p>
+        </div>
+        <div class="map-layout">
+          <div class="map-pane" aria-label="Map view">
+            <iframe id="mapFrame" title="Nearby pharmacies map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <aside class="list-pane" aria-label="Pharmacy list">
+            <div id="pharmacy-list" class="pharmacy-list" aria-live="polite"></div>
+          </aside>
+        </div>
+        <div id="pharmacy-details" class="pharmacy-details" aria-live="polite"></div>
+      </section>
+
+      <!-- CHAT -->
+      <section id="section-chat" class="section" aria-labelledby="chat-heading" hidden>
+        <div class="section-header">
+          <h2 id="chat-heading">24/7 Support Chat</h2>
+          <p class="section-subtitle">Chat with our automated assistant</p>
+        </div>
+        <div class="chat">
+          <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+          <form id="chatForm" class="chat-input" autocomplete="off">
+            <input id="chatText" type="text" placeholder="Type your message..." aria-label="Message" required />
+            <button type="submit" class="btn primary">Send</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- WELLNESS -->
+      <section id="section-wellness" class="section" aria-labelledby="wellness-heading" hidden>
+        <div class="section-header">
+          <h2 id="wellness-heading">Wellness Tracker</h2>
+          <p class="section-subtitle">Log your mood, meals, and hydration</p>
+        </div>
+        <div class="wellness-grid">
+          <article class="wellness-card mood-board-card" aria-labelledby="mood-heading">
+            <h3 id="mood-heading">Mood Tracker</h3>
+            <div id="moodChoices" class="mood-choices" role="group" aria-label="Select your mood">
+              <button class="mood-btn" data-mood="😀" aria-pressed="false">😀 Happy</button>
+              <button class="mood-btn" data-mood="🙂" aria-pressed="false">🙂 Okay</button>
+              <button class="mood-btn" data-mood="😐" aria-pressed="false">😐 Neutral</button>
+              <button class="mood-btn" data-mood="😕" aria-pressed="false">😕 Meh</button>
+              <button class="mood-btn" data-mood="😔" aria-pressed="false">😔 Low</button>
+            </div>
+            <div style="margin-top:10px;">
+              <span class="summary-pill">Today: <strong id="moodToday">—</strong></span>
+            </div>
+            <div id="moodCalendar" class="mood-calendar"></div>
+          </article>
+          <article class="wellness-card" aria-labelledby="water-heading">
+            <h3 id="water-heading">Water</h3>
+            <div class="pill" style="margin-bottom:8px;">Target: <strong id="waterTarget">8</strong> glasses</div>
+            <div class="water-bar" aria-label="Water progress">
+              <div id="waterFill" class="water-fill" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"></div>
+            </div>
+            <div class="actions" style="margin-top:10px; display:flex; gap:10px;">
+              <button id="btnAddWater" class="btn primary">+1 Glass</button>
+              <button id="btnRemoveWater" class="btn">-1</button>
+              <span class="pill">Today: <strong id="waterCount">0</strong> / <span id="waterMax">8</span></span>
+            </div>
+            <canvas id="waterChart" style="margin-top: 12px;"></canvas>
+          </article>
+          <article class="wellness-card" aria-labelledby="food-heading">
+            <h3 id="food-heading">Food Log</h3>
+            <form id="foodForm" class="form" style="box-shadow:none;">
+              <div class="form-row" style="grid-column:span 12;">
+                <label for="foodInput">Add meal/snack</label>
+                <input id="foodInput" type="text" placeholder="e.g., Oatmeal with fruit" />
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary">Add</button>
+              </div>
+            </form>
+            <div id="foodList" class="food-list" aria-live="polite"></div>
+          </article>
+          <article class="wellness-card health-metrics" aria-labelledby="metrics-heading">
+            <h3 id="metrics-heading">Health Metrics</h3>
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <label>Blood Pressure</label>
+                <input type="text" id="bloodPressure" placeholder="120/80" class="metric-input" />
+              </div>
+              <div class="metric-item">
+                <label>Weight (lbs)</label>
+                <input type="number" id="weight" placeholder="150" class="metric-input" />
+              </div>
+              <div class="metric-item">
+                <label>Steps Today</label>
+                <input type="number" id="steps" placeholder="5000" class="metric-input" />
+              </div>
+              <div class="metric-item">
+                <label>Sleep Hours</label>
+                <input type="number" id="sleepHours" placeholder="8" class="metric-input" step="0.5" />
+              </div>
+            </div>
+            <button id="saveMetrics" class="btn primary" style="margin-top: 10px;">Save Metrics</button>
+          </article>
+        </div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section id="section-analytics" class="section" aria-labelledby="analytics-heading" hidden>
+        <div class="section-header">
+          <h2 id="analytics-heading">📊 Analytics & Insights</h2>
+          <p class="section-subtitle">Visualize your health data and trends</p>
+        </div>
+        <div class="analytics-grid">
+          <div class="analytics-card chart-card">
+            <h3>Medication History</h3>
+            <canvas id="medicationChart"></canvas>
+          </div>
+          <div class="analytics-card chart-card">
+            <h3>Mood Trends (7 Days)</h3>
+            <canvas id="moodChart"></canvas>
+          </div>
+          <div class="analytics-card chart-card">
+            <h3>Water Intake Weekly</h3>
+            <canvas id="waterWeeklyChart"></canvas>
+          </div>
+          <div class="analytics-card stats-card">
+            <h3>Quick Stats</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-icon">💊</div>
+                <div class="stat-value" id="statMedications">0</div>
+                <div class="stat-label">Active Meds</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="statRefills">0</div>
+                <div class="stat-label">Refills Due</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">💧</div>
+                <div class="stat-value" id="statWaterAvg">0</div>
+                <div class="stat-label">Avg Water/Day</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">😊</div>
+                <div class="stat-value" id="statMoodAvg">—</div>
+                <div class="stat-label">Avg Mood</div>
+              </div>
+            </div>
+          </div>
+          <div class="analytics-card achievements-card">
+            <h3>🏆 Achievements</h3>
+            <div id="achievementsList" class="achievements-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="section-profile" class="section" aria-labelledby="profile-heading" hidden>
+        <div class="section-header">
+          <h2 id="profile-heading">Contact & Profile</h2>
+          <p class="section-subtitle">Update your personal info and preferences</p>
+        </div>
+        <form id="profile-form" class="form" novalidate>
+          <div class="form-grid">
+            <div class="form-row">
+              <label for="fullName">Full Name</label>
+              <input id="fullName" name="fullName" type="text" required placeholder="e.g., Alex Morgan" />
+              <small class="error" id="err-fullName" role="alert"></small>
+            </div>
+            <div class="form-row">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required placeholder="e.g., alex@example.com" />
+              <small class="error" id="err-email" role="alert"></small>
+            </div>
+            <div class="form-row">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" required placeholder="e.g., (555) 123-4567" />
+              <small class="error" id="err-phone" role="alert"></small>
+            </div>
+            <div class="form-row">
+              <label for="preferredCity">Preferred City/Area</label>
+              <input id="preferredCity" name="preferredCity" type="text" placeholder="e.g., Boston, MA" />
+              <small class="help-text">Used to center the map to your area.</small>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Profile</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>© <span id="year"></span> PharmaCare. For educational use only.</p>
+    </footer>
+
+    <!-- Split JS modules -->
+    <script src="./core.js" defer></script>
+    <script src="./chat.js" defer></script>
+    <script src="./wellness.js" defer></script>
+    <script src="./analytics.js" defer></script>
+    <script src="./dashboard.js" defer></script>
+    <script src="./upload.js" defer></script>
+    <script src="./pharmacies.js" defer></script>
+    <script src="./profile.js" defer></script>
+    <script src="./nav.js" defer></script>
+    <script src="./main.js" defer></script>
+  </body>
+</html>
