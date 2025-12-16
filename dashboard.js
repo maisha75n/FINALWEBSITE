@@ -117,8 +117,15 @@
 
       const snooze = e.target.closest('[data-snooze]');
       if (snooze) snoozeRefill(snooze.dataset.snooze);
-    };
-  }
+      
+    const del = e.target.closest('[data-delete]');
+    if (del) {
+      const prescriptions = readStorage(STORAGE_KEYS.prescriptions, []);
+      const updated = prescriptions.filter((p) => p.id !== del.dataset.delete);
+      writeStorage(STORAGE_KEYS.prescriptions, updated);
+      renderDashboard();
+      }
+  };
 
   window.PharmaCare.renderDashboard = renderDashboard;
 })();
