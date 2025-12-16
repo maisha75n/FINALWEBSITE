@@ -109,23 +109,23 @@
     });
 
     listEl.onclick = (e) => {
-      const taken = e.target.closest('[data-taken]');
-      if (taken) toggleTaken(taken.dataset.taken);
+  const taken = e.target.closest('[data-taken]');
+  if (taken) toggleTaken(taken.dataset.taken);
 
-      const refill = e.target.closest('[data-refill]');
-      if (refill) requestRefill(refill.dataset.refill);
+  const refill = e.target.closest('[data-refill]');
+  if (refill) requestRefill(refill.dataset.refill);
 
-      const snooze = e.target.closest('[data-snooze]');
-      if (snooze) snoozeRefill(snooze.dataset.snooze);
-      
-    const del = e.target.closest('[data-delete]');
-    if (del) {
-      const prescriptions = readStorage(STORAGE_KEYS.prescriptions, []);
-      const updated = prescriptions.filter((p) => p.id !== del.dataset.delete);
-      writeStorage(STORAGE_KEYS.prescriptions, updated);
-      renderDashboard();
-      }
-  };
+  const snooze = e.target.closest('[data-snooze]');
+  if (snooze) snoozeRefill(snooze.dataset.snooze);
+
+  const del = e.target.closest('[data-delete]');
+  if (del) {
+    const prescriptions = readStorage(STORAGE_KEYS.prescriptions, []);
+    const updated = prescriptions.filter((p) => p.id !== del.dataset.delete);
+    writeStorage(STORAGE_KEYS.prescriptions, updated);
+    renderDashboard();
+  }
+};
 
   window.PharmaCare.renderDashboard = renderDashboard;
 })();
