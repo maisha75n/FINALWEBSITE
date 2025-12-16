@@ -101,6 +101,7 @@
         <div class="actions">
           <button class="btn primary" data-refill="${p.id}">Request Refill</button>
           <button class="btn" data-snooze="${p.id}">Snooze 1 day</button>
+          <button class="btn" data-delete="${p.id}">Delete</button>
         </div>
       `;
 
