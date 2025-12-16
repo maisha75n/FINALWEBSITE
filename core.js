@@ -90,7 +90,7 @@
           fullName: '',
           email: '',
           phone: '',
-          preferredCity: 'Boston, MA',
+          preferredCity: 'New York, NY',
         });
       }
   

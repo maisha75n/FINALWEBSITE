@@ -17,17 +17,20 @@
         <div class="logo" aria-hidden="true">💊</div>
         <div class="brand-text">
           <h1>PharmaCare</h1>
-          <p class="tagline">Your prescriptions, organized.</p>
+          <p class="tagline">A simpler way to manage your medications and wellness.</p>
         </div>
       </div>
+      <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+        ☰
+      </button>
       <nav class="primary-nav" aria-label="Primary">
+        <button class="nav-btn" data-section="profile" aria-controls="section-profile">👤 Profile</button>
         <button class="nav-btn is-active" data-section="dashboard" aria-controls="section-dashboard" aria-current="page">🏠 Dashboard</button>
         <button class="nav-btn" data-section="upload" aria-controls="section-upload">⬆️ Upload</button>
         <button class="nav-btn" data-section="pharmacies" aria-controls="section-pharmacies">🗺️ Pharmacies</button>
         <button class="nav-btn" data-section="wellness" aria-controls="section-wellness">🌈 Wellness</button>
         <button class="nav-btn" data-section="analytics" aria-controls="section-analytics">📊 Analytics</button>
         <button class="nav-btn" data-section="chat" aria-controls="section-chat">💬 Chat</button>
-        <button class="nav-btn" data-section="profile" aria-controls="section-profile">👤 Profile</button>
       </nav>
     </header>
 
@@ -64,7 +67,6 @@
           <div class="form-row">
             <label for="rxFile">Prescription File (optional)</label>
             <input id="rxFile" name="rxFile" type="file" accept="image/*,.pdf" />
-            <small class="help-text">File is not uploaded to a server; this is a simulation.</small>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn primary">Add Prescription</button>
@@ -74,11 +76,29 @@
       </section>
 
       <!-- PHARMACIES / MAP -->
+      
       <section id="section-pharmacies" class="section" aria-labelledby="pharmacies-heading" hidden>
         <div class="section-header">
           <h2 id="pharmacies-heading">Nearby Pharmacies</h2>
           <p class="section-subtitle">Find a pharmacy near you</p>
         </div>
+        <form id="zipSearchForm" class="form" style="margin-bottom: 14px;">
+          <div class="form-grid">
+            <div class="form-row" style="grid-column: span 8;">
+              <label for="zipInput">Find pharmacies near you</label>
+              <input
+                id="zipInput"
+                type="text"
+                maxlength="5"
+                placeholder="Enter ZIP code (e.g. 10001)"
+              />
+              <div id="zipError" class="error"></div>
+            </div>
+            <div class="form-row" style="grid-column: span 4; align-self: end;">
+              <button class="btn primary" type="submit">Search</button>
+            </div>
+          </div>
+        </form>
         <div class="map-layout">
           <div class="map-pane" aria-label="Map view">
             <iframe id="mapFrame" title="Nearby pharmacies map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -265,7 +285,7 @@
     </main>
 
     <footer class="app-footer">
-      <p>© <span id="year"></span> PharmaCare. For educational use only.</p>
+      <p>© <span id="year"></span> PharmaCare.</p>
     </footer>
 
     <!-- Split JS modules -->

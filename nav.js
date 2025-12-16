@@ -45,15 +45,33 @@
   
     function initNav() {
       const buttons = qsa('.primary-nav .nav-btn');
+      const hamburger = document.querySelector('.hamburger');
+      const nav = document.querySelector('.primary-nav');
+    
       buttons.forEach((btn) => {
         btn.addEventListener('click', () => {
           buttons.forEach((b) => b.classList.remove('is-active'));
           btn.classList.add('is-active');
+    
           const section = btn.getAttribute('data-section');
           setActiveSection(section);
+    
+          // close mobile menu after selection
+          if (nav) nav.classList.remove('is-open');
+          if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
         });
       });
+    
+      // mobile hamburger toggle
+      if (hamburger && nav) {
+        hamburger.addEventListener('click', () => {
+          nav.classList.toggle('is-open');
+          const expanded = hamburger.getAttribute('aria-expanded') === 'true';
+          hamburger.setAttribute('aria-expanded', String(!expanded));
+        });
+      }
     }
+    
   
     window.PharmaCare.initNav = initNav;
     window.PharmaCare.setActiveSection = setActiveSection;
