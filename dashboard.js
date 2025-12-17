@@ -7,7 +7,6 @@
     writeStorage,
     daysUntil,
     formatDate,
-    dateKey,
   } = window.PharmaCare;
 
   function countdownText(days) {
@@ -16,34 +15,24 @@
     return `Refill in ${days} days`;
   }
 
-  function toggleTaken(id) {
-    const today = dateKey(new Date());
-    const prescriptions = readStorage(STORAGE_KEYS.prescriptions, []);
-    const rx = prescriptions.find((p) => p.id === id);
-    if (!rx) return;
-
-    rx.taken = rx.taken || {};
-    rx.taken[today] = !rx.taken[today];
-
-    writeStorage(STORAGE_KEYS.prescriptions, prescriptions);
-    renderDashboard();
-  }
-
   function requestRefill(id) {
     const prescriptions = readStorage(STORAGE_KEYS.prescriptions, []);
     const idx = prescriptions.findIndex((p) => p.id === id);
     if (idx === -1) return;
 
-    const next = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString();
+    const next = new Date(
+      Date.now() + 1000 * 60 * 60 * 24 * 30
+    ).toISOString();
+
     prescriptions[idx].refillDate = next;
     writeStorage(STORAGE_KEYS.prescriptions, prescriptions);
 
     const { addAgentMessage } = window.PharmaCare;
     if (typeof addAgentMessage === 'function') {
       addAgentMessage(
-        `Refill requested for ${prescriptions[idx].name}. Your next refill date is ${formatDate(
-          next,
-        )}.`,
+        `Refill requested for ${prescriptions[idx].name}. Next refill is ${formatDate(
+          next
+        )}.`
       );
     }
 
@@ -55,12 +44,21 @@
     const idx = prescriptions.findIndex((p) => p.id === id);
     if (idx === -1) return;
 
-    const next = new Date(
-      new Date(prescriptions[idx].refillDate).getTime() + 1000 * 60 * 60 * 24,
+    prescriptions[idx].refillDate = new Date(
+      new Date(prescriptions[idx].refillDate).getTime() +
+        1000 * 60 * 60 * 24
     ).toISOString();
-    prescriptions[idx].refillDate = next;
+
     writeStorage(STORAGE_KEYS.prescriptions, prescriptions);
     renderDashboard();
+  }
+
+  function onDashboardClick(e) {
+    const refillBtn = e.target.closest('[data-refill]');
+    if (refillBtn) requestRefill(refillBtn.dataset.refill);
+
+    const snoozeBtn = e.target.closest('[data-snooze]');
+    if (snoozeBtn) snoozeRefill(snoozeBtn.dataset.snooze);
   }
 
   function renderDashboard() {
@@ -76,47 +74,61 @@
       return;
     }
 
-    const today = dateKey(new Date());
+    const due = prescriptions.filter((p) => daysUntil(p.refillDate) <= 0);
+    const soon = prescriptions.filter((p) => {
+      const d = daysUntil(p.refillDate);
+      return d > 0 && d <= 3;
+    });
+
+    due.forEach((p) => {
+      const div = document.createElement('div');
+      div.className = 'alert due';
+      div.innerHTML = `
+        ⏰ Refill due now: <strong>${p.name}</strong>
+        <button class="btn" data-refill="${p.id}">Request Refill</button>
+      `;
+      alertsEl.appendChild(div);
+    });
+
+    soon.forEach((p) => {
+      const div = document.createElement('div');
+      div.className = 'alert';
+      div.textContent = `Reminder: ${p.name} refill in ${daysUntil(
+        p.refillDate
+      )} days.`;
+      alertsEl.appendChild(div);
+    });
 
     prescriptions.forEach((p) => {
       const days = daysUntil(p.refillDate);
-      const takenToday = p.taken?.[today];
 
-      const wrap = document.createElement('article');
-      wrap.className = 'card';
-      wrap.innerHTML = `
+      const card = document.createElement('article');
+      card.className = 'card';
+
+      card.innerHTML = `
         <h3>${p.name}</h3>
         <div class="meta">Dosage: ${p.dosage}</div>
-
-        <label style="display:flex; gap:8px; align-items:center; margin:10px 0;">
-          <input type="checkbox" data-taken="${p.id}" ${takenToday ? 'checked' : ''} />
-          Taken today
-        </label>
-
-        <div class="pill ${days <= 0 ? 'danger' : days <= 3 ? 'warn' : ''}">
+        <div class="pill ${
+          days <= 0 ? 'danger' : days <= 3 ? 'warn' : ''
+        }">
           ${countdownText(days)}
         </div>
         <div class="meta">Refill date: ${formatDate(p.refillDate)}</div>
-
         <div class="actions">
-          <button class="btn primary" data-refill="${p.id}">Request Refill</button>
-          <button class="btn" data-snooze="${p.id}">Snooze 1 day</button>
+          <button class="btn primary" data-refill="${p.id}">
+            Request Refill
+          </button>
+          <button class="btn" data-snooze="${p.id}">
+            Snooze 1 day
+          </button>
         </div>
       `;
 
-      listEl.appendChild(wrap);
+      listEl.appendChild(card);
     });
 
-    listEl.onclick = (e) => {
-      const taken = e.target.closest('[data-taken]');
-      if (taken) toggleTaken(taken.dataset.taken);
-
-      const refill = e.target.closest('[data-refill]');
-      if (refill) requestRefill(refill.dataset.refill);
-
-      const snooze = e.target.closest('[data-snooze]');
-      if (snooze) snoozeRefill(snooze.dataset.snooze);
-    };
+    listEl.addEventListener('click', onDashboardClick);
+    alertsEl.addEventListener('click', onDashboardClick);
   }
 
   window.PharmaCare.renderDashboard = renderDashboard;
